@@ -89,7 +89,7 @@ The repository is a portable Agent Plugin with a root `plugin.json`, plus a
 Git marketplace and install the plugin:
 
 ```bash
-codex plugin marketplace add <github-owner>/replica-skill-codex --ref main
+codex plugin marketplace add ariyankhalid97-creator/replica-skill-codex --ref main
 codex plugin add replica-skill-codex@replica-skill-codex
 ```
 
@@ -113,7 +113,7 @@ See [Build skills](https://developers.openai.com/codex/skills).
 macOS/Linux user installation:
 
 ```bash
-git clone https://github.com/<github-owner>/replica-skill-codex.git
+git clone https://github.com/ariyankhalid97-creator/replica-skill-codex.git
 mkdir -p "$HOME/.agents/skills"
 cp -R replica-skill-codex/skills/replica-* "$HOME/.agents/skills/"
 cp -R replica-skill-codex/skills/replica "$HOME/.agents/skills/"
@@ -122,7 +122,7 @@ cp -R replica-skill-codex/skills/replica "$HOME/.agents/skills/"
 Windows PowerShell user installation:
 
 ```powershell
-git clone https://github.com/<github-owner>/replica-skill-codex.git
+git clone https://github.com/ariyankhalid97-creator/replica-skill-codex.git
 New-Item -ItemType Directory -Force "$HOME\.agents\skills" | Out-Null
 Copy-Item -Recurse .\replica-skill-codex\skills\replica-* "$HOME\.agents\skills\"
 Copy-Item -Recurse .\replica-skill-codex\skills\replica "$HOME\.agents\skills\"
