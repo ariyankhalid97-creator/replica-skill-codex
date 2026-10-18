@@ -7,7 +7,7 @@ description: >-
   finds anything of the original left in the codebase. Use when the user says
   "name my app", "rebrand the clone", "make it mine", "pick a name and
   colours", "logo brief", "brand voice", "check for leftovers", or after
-  /replica-entrepreneur. Always runs before /replica-launch.
+  $replica-entrepreneur. Always runs before $replica-launch.
 ---
 
 # replica-brand
@@ -15,11 +15,12 @@ description: >-
 Nothing launches under the original's identity. This skill is the line
 between "a clone" and "your app".
 
-Tool in this folder:
+Resolve `<skill-dir>` to the directory containing this `SKILL.md`. On Windows,
+use `python`; on macOS or Linux, use `python3` if `python` is unavailable.
 
 ```bash
-python3 sweep.py . --avoid "Original Name,Its Company" --domains original.com --colors "#006bff"
-python3 sweep.py . --config replica/brand.json        # same, from the brand file
+python "<skill-dir>/sweep.py" . --avoid "Original Name,Its Company" --domains original.com --colors "#006bff"
+python "<skill-dir>/sweep.py" . --config replica/brand.json
 ```
 
 Writes `replica/brand.md` and `replica/brand.json` (`avoid`, `domains`,
@@ -63,7 +64,7 @@ Pick a primary brand hue from a different family than the original's (if
 theirs is blue, yours is not a nearby blue). Then:
 
 ```bash
-python3 ../replica-design/contrast.py replica/design/tokens.json
+python "<plugin-root>/skills/replica-design/contrast.py" replica/design/tokens.json
 ```
 
 Zero AA failures. Add the original's brand colours to `brand.json` so the
@@ -94,7 +95,7 @@ error) in that voice. All fresh, none echoing the original's phrasing.
 Replace every placeholder name, colour and string. Then:
 
 ```bash
-python3 sweep.py . --config replica/brand.json
+python "<skill-dir>/sweep.py" . --config replica/brand.json
 ```
 
 It searches file contents and file names for the original's name (also inside
@@ -107,4 +108,4 @@ the page titles, the email templates, the OG image, the app icon.
 
 `replica/brand.md` (name with checks, palette, logo brief, voice),
 `replica/brand.json`, updated tokens, rewritten strings, and a clean sweep.
-Next: `/replica-launch`.
+Next: `$replica-launch`.

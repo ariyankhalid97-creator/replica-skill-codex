@@ -6,7 +6,7 @@ description: >-
   ticking off the feature matrix as it goes. Writes every line fresh, never
   the original's code, assets or copy. Use when the user says "build the
   clone", "build screen S07", "start building", "rebuild this screen",
-  "implement the booking page", or after /replica-design.
+  "implement the booking page", or after $replica-design.
 ---
 
 # replica-build
@@ -84,4 +84,4 @@ calls. Then build your own version of the behaviour.
 
 Screens built, the feature matrix updated, screenshots saved, and a summary:
 screens done of total, must-haves done of total, what is next. Then
-`/replica-backend` if the data layer is still fake, else `/replica-test`.
+`$replica-backend` if the data layer is still fake, else `$replica-test`.

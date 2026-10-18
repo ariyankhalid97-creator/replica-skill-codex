@@ -8,7 +8,7 @@ description: >-
   positioning angle you can sell. Every quote is real, verbatim and linked.
   Use when the user says "what do people hate about X", "read the reviews",
   "how do I make mine better", "find the gap", "what features are missing",
-  "how do I position this", "make it sellable", or after /replica-diff.
+  "how do I position this", "make it sellable", or after $replica-diff.
 ---
 
 # replica-entrepreneur
@@ -16,10 +16,12 @@ description: >-
 A straight copy of an app has no reason to exist. This skill finds the reason:
 what the original's users hate, in their own words, and fixes it in yours.
 
-Tool in this folder:
+Resolve `<skill-dir>` to the directory containing this `SKILL.md`; its
+`reviews.py` automatically loads the bundled `themes.json`. On Windows, use
+`python`; on macOS or Linux, use `python3` if `python` is unavailable.
 
 ```bash
-python3 reviews.py replica/reviews.csv --out replica/feedback.md
+python "<skill-dir>/reviews.py" replica/reviews.csv --out replica/feedback.md
 ```
 
 ## The rules, which are not negotiable
@@ -62,7 +64,7 @@ best fixes hide.
 ## Step 2: rank
 
 ```bash
-python3 reviews.py replica/reviews.csv --out replica/feedback.md
+python "<skill-dir>/reviews.py" replica/reviews.csv --out replica/feedback.md
 ```
 
 It sorts reviews into themes (`themes.json`, edit it for the app's category),
@@ -89,7 +91,7 @@ a trend.
 Pick the top 5 to 8 by evidence times how cheaply you can fix them. For each:
 what to build or change, size (S, M, L), which skill does it, and the
 evidence. Add each one to `replica/features.csv` as a row with `original` set
-to `no`. Pricing and billing complaints go to `/replica-launch`.
+to `no`. Pricing and billing complaints go to `$replica-launch`.
 
 ## Step 5: the angle
 
@@ -109,4 +111,4 @@ A factual comparison page is a legal question for a lawyer in your country.
 
 `replica/reviews.csv`, `replica/feedback.md`, `replica/fixes.md` (three
 lists, fix plan, angle), new rows in `features.csv`, and a summary that
-states the sample size. Next: `/replica-brand`.
+states the sample size. Next: `$replica-brand`.

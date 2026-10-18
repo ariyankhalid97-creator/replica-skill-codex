@@ -7,15 +7,16 @@ description: >-
   flow, and orders the build as a thin vertical slice first. Use when the user
   says "plan the clone", "what stack should I use", "design the database",
   "write the schema", "plan the API", "architecture for my version of X", or
-  after /replica-recon finishes.
+  after $replica-recon finishes.
 ---
 
 # replica-architect
 
 Reads `replica/recon.md` and `replica/features.csv`. Writes
-`replica/architecture.md` (template: architecture.md in this folder).
+`replica/architecture.md` using `architecture.md` beside this `SKILL.md` as
+the template.
 
-If there is no recon map, stop and run `/replica-recon` first. Planning a
+If there is no recon map, stop and run `$replica-recon` first. Planning a
 clone from memory of what an app does is how you miss half of it.
 
 ## Step 1: the stack
@@ -112,4 +113,4 @@ Each milestone lists its screens (S-IDs), tables and routes.
 
 `replica/architecture.md`, the SQL in `replica/schema.sql` or as the first
 migration, and a summary: stack in one line, table count, route count, the
-three riskiest parts, and the next step: `/replica-design`.
+three riskiest parts, and the next step: `$replica-design`.

@@ -7,17 +7,19 @@ description: >-
   against the stores' limits and copycat rules. Use when the user says
   "landing page", "pricing", "how much should I charge", "App Store
   listing", "store screenshots", "launch plan", "Product Hunt", or after
-  /replica-brand.
+  $replica-brand.
 ---
 
 # replica-launch
 
 Reads `replica/fixes.md` (the angle and the evidence), `replica/brand.md`,
 and `replica/brand.json`. Writes `replica/launch/`: `landing.md`,
-`pricing.md`, `listing.json`, `launch-plan.md`.
+`pricing.md`, `listing.json`, `launch-plan.md`. Resolve `<skill-dir>` to the
+directory containing this `SKILL.md`; `listing.example.json` is beside it.
+On Windows, use `python`; on macOS or Linux, use `python3` if needed.
 
 ```bash
-python3 listing.py replica/launch/listing.json      # limits, claims, the original's name
+python "<skill-dir>/listing.py" replica/launch/listing.json
 ```
 
 Start from `listing.example.json` in this folder.
@@ -68,7 +70,7 @@ Copy in the brand voice. Run replica-design's contrast check on the page.
 Fill `listing.json`, then:
 
 ```bash
-python3 listing.py replica/launch/listing.json
+python "<skill-dir>/listing.py" replica/launch/listing.json
 ```
 
 It checks App Store limits (name 30, subtitle 30, promotional text 170,
@@ -97,4 +99,4 @@ leads with the fix, and the first 10 users to talk to by hand.
 ## Output
 
 `replica/launch/` complete, the landing page built, `listing.py` passing.
-Next: `/replica-deploy`.
+Next: `$replica-deploy`.

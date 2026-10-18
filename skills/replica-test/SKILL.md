@@ -6,15 +6,16 @@ description: >-
   end-to-end tests where possible, a browser click-through where not, and bug
   reports in a fixed format with severity, steps and evidence. Use when the
   user says "test my clone", "find bugs", "QA this", "click through
-  everything", "write e2e tests", "does it work", or after /replica-build or
-  /replica-backend.
+  everything", "write e2e tests", "does it work", or after $replica-build or
+  $replica-backend.
 ---
 
 # replica-test
 
 Reads the flows in `replica/recon.md`. Writes `replica/test-plan.md`,
-`replica/bugs.md`, and end-to-end tests in the project (`e2e/`). Templates in
-this folder: `test-plan.md`, `bug-report.md`, `e2e.example.spec.ts`.
+`replica/bugs.md`, and end-to-end tests in the project (`e2e/`). Templates
+`test-plan.md`, `bug-report.md`, and `e2e.example.spec.ts` are beside this
+`SKILL.md`.
 
 ## The rule
 
@@ -84,4 +85,4 @@ it pass, keep the test. Re-run the whole suite after each batch. Update
 
 `test-plan.md`, the specs, `bugs.md`, and a summary: cases run, passed,
 failed, bugs by severity, fixed so far. Ship nothing with an open S1. Next:
-`/replica-diff`.
+`$replica-diff`.

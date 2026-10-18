@@ -7,17 +7,20 @@ description: >-
   logos, icons, illustrations or licensed fonts. Includes a WCAG contrast
   checker. Use when the user says "match the design", "rebuild the design
   system", "get the colours and fonts", "make it look like X", "design tokens
-  for my clone", or after /replica-architect.
+  for my clone", or after $replica-architect.
 ---
 
 # replica-design
 
 Reads `replica/recon.md` and the screenshots in `replica/screens/`. Writes
-`replica/design/tokens.json` (template in this folder), `tokens.css`, the
+`replica/design/tokens.json` using `tokens.json` beside this `SKILL.md` as the template, `tokens.css`, the
 Tailwind mapping, and `replica/design/components.md`.
 
+Resolve `<skill-dir>` to the directory containing this `SKILL.md`. On Windows,
+use `python`; on macOS or Linux, use `python3` if `python` is unavailable.
+
 ```bash
-python3 contrast.py replica/design/tokens.json     # every text pair, WCAG ratio
+python "<skill-dir>/contrast.py" replica/design/tokens.json
 ```
 
 ## The rules
@@ -60,7 +63,7 @@ Add a `pairs` list for every text and background combination the app uses,
 then:
 
 ```bash
-python3 contrast.py replica/design/tokens.json
+python "<skill-dir>/contrast.py" replica/design/tokens.json
 ```
 
 AA is the floor: 4.5:1 for body text, 3:1 for large text and for input
@@ -96,4 +99,4 @@ check.
 
 `tokens.json`, `tokens.css`, the Tailwind config, `components.md`, the
 primitives built, and a contrast report with zero AA failures. Next:
-`/replica-build`.
+`$replica-build`.

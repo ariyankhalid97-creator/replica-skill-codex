@@ -1,0 +1,20 @@
+{
+  "name": "replica-skill-codex",
+  "interface": {
+    "displayName": "Replica for Codex"
+  },
+  "plugins": [
+    {
+      "name": "replica-skill-codex",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

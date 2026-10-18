@@ -18,8 +18,8 @@ map means a bad clone, so take the time here.
 Output goes in the user's project:
 
 ```
-replica/recon.md        the recon map (template: recon-map.md in this folder)
-replica/features.csv    the feature matrix (template: features.csv in this folder)
+replica/recon.md        the recon map (template: recon-map.md beside this SKILL.md)
+replica/features.csv    the feature matrix (template: features.csv beside this SKILL.md)
 replica/screens/        reference screenshots of the original. Never shipped.
 ```
 
@@ -131,4 +131,4 @@ few weeks), L (a quarter), XL (rescope it). No promises of a perfect clone.
 
 `replica/recon.md` and `replica/features.csv`, then a five-line summary: the
 core loop, screen and flow counts, the three hardest parts, what is out of
-scope, and the next step: `/replica-architect`.
+scope, and the next step: `$replica-architect`.

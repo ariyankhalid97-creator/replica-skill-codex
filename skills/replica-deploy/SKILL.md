@@ -7,7 +7,7 @@ description: >-
   domain and for email, Stripe live mode, OAuth redirects, monitoring, and
   mobile builds to TestFlight and Play. Use when the user says "deploy it",
   "ship it", "put it live", "connect my domain", "go to production",
-  "publish the app", or after /replica-launch.
+  "publish the app", or after $replica-launch.
 ---
 
 # replica-deploy
@@ -19,8 +19,8 @@ Reads everything in `replica/`. Writes `replica/deploy.md` (the checklist in
 
 - **Nothing goes live without the user's go.** Show the preflight results and
   ask.
-- **The user buys and signs in.** Claude never buys a domain, enters a card,
-  types a password or pastes a live key. Claude writes the exact DNS records,
+- **The user buys and signs in.** Codex never buys a domain, enters a card,
+  types a password or pastes a live key. Codex writes the exact DNS records,
   env var names and commands; the user does the account steps.
 - **Not until it is rebranded.** The sweep must be clean. No exceptions.
 
@@ -28,17 +28,17 @@ Reads everything in `replica/`. Writes `replica/deploy.md` (the checklist in
 
 Run every check and paste the results into `deploy.md`:
 
-```bash
-npx playwright test                                                  # replica-test
-python3 ../replica-diff/parity.py replica/features.csv               # must-haves done
-python3 ../replica-brand/sweep.py . --config replica/brand.json      # exit 0: clean
-python3 ../replica-launch/listing.py replica/launch/listing.json     # if shipping to stores
-npm run build                                                        # production build passes
-```
+Resolve `<plugin-root>` to the installed Replica plugin root. If the skills
+were installed individually, resolve each helper from its skill directory.
+On Windows, use `python`; on macOS or Linux, use `python3` if needed.
 
-(Paths are relative to wherever the pack is installed. Under
-`~/.claude/skills/` that is `~/.claude/skills/replica-diff/parity.py` and so
-on.)
+```bash
+npx playwright test
+python "<plugin-root>/skills/replica-diff/parity.py" replica/features.csv
+python "<plugin-root>/skills/replica-brand/sweep.py" . --config replica/brand.json
+python "<plugin-root>/skills/replica-launch/listing.py" replica/launch/listing.json
+npm run build
+```
 
 Plus by hand: no open S1 or S2 bugs, privacy policy and terms pages live
 (listing every processor), cookie banner if you use non-essential cookies in

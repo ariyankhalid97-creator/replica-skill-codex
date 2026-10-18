@@ -1,0 +1,31 @@
+{
+  "name": "replica-skill-codex",
+  "version": "1.0.0",
+  "description": "Clean-room app reconstruction workflows for Codex: recon, architecture, design, build, backend, testing, parity, positioning, brand, launch, and deploy.",
+  "author": {
+    "name": "Jake Schincariol (original project)",
+    "url": "https://opusjake.ai"
+  },
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "agent-skills",
+    "app-reconstruction",
+    "clean-room",
+    "saas",
+    "product"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Replica for Codex",
+    "shortDescription": "Clean-room app reconstruction workflows",
+    "longDescription": "Twelve Codex skills that map, rebuild, test, differentiate, brand, launch, and deploy an original implementation based on lawful public information and the user's authorized access.",
+    "developerName": "Jake Schincariol (original); Codex port contributors",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "defaultPrompt": [
+      "Use $replica-recon to analyze an application before I build my own version.",
+      "Use $replica to inspect my existing replica artifacts and continue the workflow."
+    ]
+  }
+}

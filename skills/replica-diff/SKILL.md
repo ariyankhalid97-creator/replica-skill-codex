@@ -7,18 +7,20 @@ description: >-
   does not count against you. Two standard-library Python tools. Use when the
   user says "how close is my clone", "compare it to the original", "what's
   missing", "parity check", "diff the screens", "is it ready", or after
-  /replica-test.
+  $replica-test.
 ---
 
 # replica-diff
 
-Two tools in this folder, both standard-library Python, no installs:
+Resolve `<skill-dir>` to the directory containing this `SKILL.md`. Both tools
+use only the Python standard library. On Windows, use `python`; on macOS or
+Linux, use `python3` if `python` is unavailable.
 
 ```bash
-python3 parity.py replica/features.csv                         # feature parity + missing list
-python3 imgdiff.py replica/screens/S07.png replica/clone-screens/S07.png --out diff-S07.png
-python3 imgdiff.py a.png b.png --json > replica/diffs/S07.json # for parity.py --visual
-python3 parity.py replica/features.csv --visual replica/diffs/*.json --markdown > replica/parity.md
+python "<skill-dir>/parity.py" replica/features.csv
+python "<skill-dir>/imgdiff.py" replica/screens/S07.png replica/clone-screens/S07.png --out diff-S07.png
+python "<skill-dir>/imgdiff.py" a.png b.png --json > replica/diffs/S07.json
+python "<skill-dir>/parity.py" replica/features.csv --visual replica/diffs/*.json --markdown > replica/parity.md
 ```
 
 ## What parity means here
@@ -37,7 +39,7 @@ Make sure `replica/features.csv` is current: every row's `clone` column is
 `yes`, `partial` (with a note), `no`, or `skip` (with a reason). Then:
 
 ```bash
-python3 parity.py replica/features.csv
+python "<skill-dir>/parity.py" replica/features.csv
 ```
 
 It weights must 3, should 2, could 1, counts partial as half, leaves out
@@ -54,7 +56,7 @@ user's own account, saved in `replica/screens/`. The clone's go in
 `replica/clone-screens/`.
 
 ```bash
-python3 imgdiff.py replica/screens/S07.png replica/clone-screens/S07.png --out replica/diffs/S07.png
+python "<skill-dir>/imgdiff.py" replica/screens/S07.png replica/clone-screens/S07.png --out replica/diffs/S07.png
 ```
 
 Layout mode (default) turns both into edge maps, cuts them into a grid, and
@@ -89,5 +91,5 @@ Give honest numbers. A clone at 62% is at 62%.
 ## Output
 
 `replica/parity.md`, the diff images, and the top five things to build next.
-Then `/replica-build` for the gaps, or `/replica-entrepreneur` if parity is
+Then `$replica-build` for the gaps, or `$replica-entrepreneur` if parity is
 there.
