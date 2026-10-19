@@ -27,6 +27,15 @@ RESOURCES = {
 }
 LINK = re.compile(r"(?<!!)\[[^\]]+\]\(([^)]+)\)")
 FRONTMATTER = re.compile(r"\A---\r?\n(.*?)\r?\n---\r?\n", re.S)
+PACKAGE_EXCLUDED_DIRS = {".git", "__pycache__", "node_modules", "dist", "release"}
+PACKAGE_EXCLUDED_ROOTS = {"replica", "desktop-app"}
+
+
+def is_package_source(path):
+    """Return false for generated product artifacts and dependency trees."""
+    if path.parts and path.parts[0] in PACKAGE_EXCLUDED_ROOTS:
+        return False
+    return not PACKAGE_EXCLUDED_DIRS.intersection(path.parts)
 
 
 def parse_frontmatter(path):
@@ -102,14 +111,14 @@ def validate(root):
         errors.append("duplicate skill names: %r" % names)
 
     for path in root.rglob("*.json"):
-        if ".git" in path.parts:
+        if not is_package_source(path.relative_to(root)):
             continue
         try:
             json.loads(path.read_text(encoding="utf-8"))
         except Exception as exc:
             errors.append("%s: invalid JSON: %s" % (path.relative_to(root), exc))
     for path in root.rglob("*.py"):
-        if ".git" in path.parts or "__pycache__" in path.parts:
+        if not is_package_source(path.relative_to(root)):
             continue
         try:
             ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
@@ -148,7 +157,7 @@ def validate(root):
     provider_name = ("cla" + "ude").lower()
     old_invocation = re.compile(r"(?:after|before|run|next:)\s+`?/replica-", re.I)
     for path in root.rglob("*"):
-        if not path.is_file() or ".git" in path.parts or "__pycache__" in path.parts:
+        if not path.is_file() or not is_package_source(path.relative_to(root)):
             continue
         if path.suffix.lower() not in {".md", ".json", ".py", ".csv", ".ts"}:
             continue

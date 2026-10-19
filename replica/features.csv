@@ -1,0 +1,55 @@
+feature,area,priority,original,clone,notes
+Open PDF through Storage Access Framework,viewer,must,yes,partial,Desktop uses native file picker; Android SAF remains
+View zoom scroll and thumbnails,viewer,must,yes,yes,Desktop has page navigation zoom and live page thumbnails
+Search and select native PDF text,viewer,must,yes,partial,Desktop prototype selects text objects; search remains
+Import camera scan,scanner,must,yes,no,ML Kit document scanner on device
+Detect native-text versus scanned pages,extraction,must,yes,no,
+On-device OCR for scanned pages,extraction,must,yes,partial,Desktop bundles local English Tesseract model and can add a searchable invisible text layer; Android model remains
+Automatic table region detection,extraction,must,yes,partial,Desktop prototype uses simple deterministic text geometry
+Manual table region selection,extraction,must,no,no,Fallback for difficult layouts
+Reconstruct rows columns merged cells,extraction,must,yes,no,
+Confidence-linked correction grid,extraction,must,no,no,Primary differentiator
+Export CSV,export,must,yes,yes,Desktop prototype includes reviewed CSV export
+Export XLSX,export,must,yes,no,Keep formatting minimal and deterministic
+Copy as TSV or JSON,export,should,no,no,
+Key-value field extraction,extraction,should,yes,no,Invoices receipts forms
+Batch multi-page extraction,extraction,should,yes,partial,Desktop batch-processes first pages from multiple PDFs into one reviewed CSV; full multi-page templates remain
+Annotate highlight draw and undo,editor,must,yes,no,
+Fill AcroForms,editor,must,yes,partial,Desktop edits text checkbox dropdown and radio AcroForm fields; XFA warning remains
+Add and place a local signature,editor,must,yes,yes,Desktop prototype places image signature locally
+Create a signature by drawing,signature,must,yes,partial,Desktop stores drawing as high-DPI PNG; Android should retain vector strokes
+Import a signature from device or document provider,signature,must,yes,yes,Desktop native picker; Android Photo Picker or SAF remains
+Scan and clean a paper signature on-device,signature,should,no,no,Crop background removal contrast preview
+Use signature once without saving,signature,must,no,yes,Privacy default implemented in desktop prototype
+Store reusable signatures in app-private vault,signature,must,yes,partial,Desktop opt-in local storage exists; protected vault and delete UI remain
+Inspect selected text font size style color spacing and alignment,editor,must,yes,partial,Desktop reads font resource family size style alignment and position; color/spacing remain
+Capture reusable embedded font bytes for document-scoped editing,editor,must,no,partial,Desktop captures fonts exposed by PDF.js and safely blocks restricted or unavailable resources
+Private local Font Vault,editor,should,no,yes,Desktop persists user-imported TTF/OTF files in app-private storage
+Edit existing text object without rasterizing the page,editor,must,yes,partial,Desktop compatible overlay preserves page streams but is not arbitrary object rewrite
+Metric-compatible font substitution with explicit warning,editor,must,no,partial,Desktop warns and accepts user-supplied TTF/OTF; automated metric matching remains
+Edit scanned text with OCR-backed overlay mode,editor,should,no,no,Label as scan overlay not native text edit
+Add text and image overlays,editor,must,yes,no,Preserve vectors and original image streams
+Before-after fidelity preview and automated diff,editor,must,no,partial,Desktop blocks an edit when pixels change outside the selected region; full preview UI remains
+Redact with destructive content removal,editor,must,yes,no,Must verify removed content cannot be recovered
+Reorder rotate delete duplicate pages,editor,must,yes,yes,Desktop supports all operations with undo recovery and save-copy default
+Merge and split PDFs,editor,should,yes,no,
+Compress images in a PDF,editor,should,yes,no,Quality preview required
+Password protect output,security,should,yes,no,
+Remove password when user knows it,security,could,yes,no,Never crack passwords
+Local summary on supported devices,local-ai,could,yes,no,Optional Gemini Nano enhancement
+Natural-language schema mapping,local-ai,could,no,no,Map columns to user template on supported devices
+Three-month Pro subscription,billing,must,yes,no,Google Play auto-renew base plan
+Three-month prepaid pass,billing,should,no,no,No auto-renew option where supported
+Restore and manage purchase,billing,must,yes,no,
+Offline grace entitlement,billing,must,no,no,Time-bounded cached entitlement
+Signed desktop application updates,distribution,must,no,partial,NSIS update feed and in-app approval flow implemented; production signing certificate remains
+No account required,privacy,must,no,yes,Desktop prototype has no account
+No document upload,privacy,must,no,partial,Desktop app has no upload code; automated network-boundary test remains
+Local-only diagnostics,privacy,must,no,no,Crash sharing explicit opt-in only
+Delete cache and extraction history,privacy,must,yes,partial,Successful Save copy clears the crash-recovery file; full privacy settings panel remains
+OCR Chinese Japanese Korean Devanagari,language,should,yes,no,Downloadable packs after Latin MVP
+Handwriting OCR,language,could,yes,no,Not promised by text OCR path
+Cloud collaboration,collaboration,skip,yes,skip,Conflicts with local-only wedge
+Remote e-sign requests,collaboration,skip,yes,skip,Requires servers identity workflow and ongoing cost
+Whole-paragraph desktop publishing reflow,editor,could,yes,no,Ship only after font/layout corpus meets fidelity gate
+

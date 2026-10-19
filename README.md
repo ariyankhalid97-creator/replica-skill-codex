@@ -224,6 +224,26 @@ future upstream changes:
 5. Run focused tests, validators, and the full suite.
 6. Update the port version, changelog, and recorded upstream commit.
 
+### PrivateParse desktop app
+
+`desktop-app/` is a separate, local-only product app generated from the
+Replica workflow artifacts in `replica/`. It is not part of the eleven-skill
+plugin runtime. To run or build the shareable Windows executable:
+
+```bash
+cd desktop-app
+npm install
+npm test
+npm run dist
+```
+
+The current build opens PDFs, shows thumbnails, organizes pages with undo and
+crash recovery, runs bundled offline OCR, fills AcroForms, captures available
+document fonts, blocks unsafe font substitutions, checks for unexpected visual
+changes, extracts reviewed tables to CSV, places drawn or imported signatures,
+and supports a GitHub Releases update channel without uploading document bytes. See
+`desktop-app/README.md` for limitations and testing guidance.
+
 ## Running tests
 
 ```bash

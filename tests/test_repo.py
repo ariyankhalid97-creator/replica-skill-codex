@@ -3,7 +3,9 @@ import os
 import unittest
 
 from _load import ROOT
-from validate_package import EXPECTED_SKILLS, validate
+from validate_package import (
+    EXPECTED_SKILLS, PACKAGE_EXCLUDED_DIRS, PACKAGE_EXCLUDED_ROOTS, validate,
+)
 
 
 class Repo(unittest.TestCase):
@@ -53,7 +55,11 @@ class Repo(unittest.TestCase):
     def test_no_em_dashes_anywhere(self):
         bad = []
         for dirpath, dirnames, filenames in os.walk(ROOT):
-            dirnames[:] = [d for d in dirnames if d not in (".git", "__pycache__")]
+            if os.path.abspath(dirpath) == os.path.abspath(ROOT):
+                excluded = PACKAGE_EXCLUDED_DIRS | PACKAGE_EXCLUDED_ROOTS
+            else:
+                excluded = PACKAGE_EXCLUDED_DIRS
+            dirnames[:] = [d for d in dirnames if d not in excluded]
             for filename in filenames:
                 if filename.endswith((".md", ".py", ".json", ".ts", ".csv")):
                     path = os.path.join(dirpath, filename)
