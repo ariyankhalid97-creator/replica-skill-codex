@@ -4,9 +4,23 @@ const path = require('node:path');
 const { autoUpdater } = require('electron-updater');
 const { createWorker } = require('tesseract.js');
 const english = require('@tesseract.js-data/eng');
+const { chooseDetectedLanguage } = require('./language-detection.cjs');
 
 let mainWindow = null;
-let ocrWorkerPromise = null;
+const ocrWorkers = new Map();
+const OCR_LANGUAGES = [
+  ['eng', 'English'], ['spa', 'Spanish'], ['fra', 'French'], ['deu', 'German'],
+  ['ita', 'Italian'], ['por', 'Portuguese'], ['nld', 'Dutch'], ['tur', 'Turkish'],
+  ['pol', 'Polish'], ['rus', 'Russian'], ['ukr', 'Ukrainian'], ['ara', 'Arabic'],
+  ['urd', 'Urdu'], ['hin', 'Hindi'], ['ben', 'Bengali'], ['chi_sim', 'Chinese (Simplified)'],
+  ['jpn', 'Japanese'], ['kor', 'Korean']
+].map(([code, name]) => ({ code, name }));
+const OCR_LANGUAGE_CODES = new Set(OCR_LANGUAGES.map((language) => language.code));
+const FRANC_TO_TESSERACT = {
+  eng: 'eng', spa: 'spa', fra: 'fra', deu: 'deu', ita: 'ita', por: 'por', nld: 'nld',
+  tur: 'tur', pol: 'pol', rus: 'rus', ukr: 'ukr', arb: 'ara', urd: 'urd', hin: 'hin',
+  ben: 'ben', cmn: 'chi_sim', jpn: 'jpn', kor: 'kor'
+};
 const singleInstance = app.requestSingleInstanceLock();
 if (!singleInstance) app.quit();
 app.on('second-instance', () => {
@@ -48,27 +62,82 @@ async function recoveryDirectory() {
   return directory;
 }
 
-async function getOcrWorker() {
-  if (!ocrWorkerPromise) {
-    const langPath = app.isPackaged ? english.langPath.replace('app.asar', 'app.asar.unpacked') : english.langPath;
+async function ocrModelsDirectory() {
+  const directory = path.join(app.getPath('userData'), 'ocr-models');
+  await fs.mkdir(directory, { recursive: true });
+  return directory;
+}
+
+function sendOcrProgress(state) {
+  if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('ocr:progress', state);
+}
+
+async function fileExists(filePath) {
+  try { await fs.access(filePath); return true; } catch { return false; }
+}
+
+async function ensureOcrLanguage(language) {
+  if (!OCR_LANGUAGE_CODES.has(language)) throw new Error('This OCR language is not supported by this build.');
+  const directory = await ocrModelsDirectory();
+  const destination = path.join(directory, `${language}.traineddata.gz`);
+  if (await fileExists(destination)) return { directory, downloaded: false };
+  const temporary = `${destination}.download`;
+  try {
+    if (language === 'eng') {
+      const packageRoot = path.dirname(english.langPath);
+      const source = path.join(packageRoot, '4.0.0_best_int', 'eng.traineddata.gz');
+      await fs.copyFile(app.isPackaged ? source.replace('app.asar', 'app.asar.unpacked') : source, temporary);
+    } else {
+      const url = `https://cdn.jsdelivr.net/npm/@tesseract.js-data/${language}@1.0.0/4.0.0_best_int/${language}.traineddata.gz`;
+      sendOcrProgress({ status: 'downloading-language', progress: 0, language });
+      const response = await fetch(url, { redirect: 'error' });
+      if (!response.ok || !response.body) throw new Error(`Could not download the ${language} OCR pack (${response.status}).`);
+      const expectedLength = Number(response.headers.get('content-length') || 0);
+      if (expectedLength > 40 * 1024 * 1024) throw new Error('The OCR language pack exceeded the safe download limit.');
+      const reader = response.body.getReader();
+      const chunks = [];
+      let received = 0;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        received += value.byteLength;
+        if (received > 40 * 1024 * 1024) throw new Error('The OCR language pack exceeded the safe download limit.');
+        chunks.push(Buffer.from(value));
+        sendOcrProgress({ status: 'downloading-language', progress: expectedLength ? received / expectedLength : 0, language });
+      }
+      const archive = Buffer.concat(chunks);
+      if (archive.length < 100000 || archive[0] !== 0x1f || archive[1] !== 0x8b) throw new Error('The downloaded OCR language pack was invalid.');
+      await fs.writeFile(temporary, archive);
+    }
+    await fs.rename(temporary, destination);
+  } catch (error) {
+    await fs.rm(temporary, { force: true });
+    throw error;
+  }
+  return { directory, downloaded: true };
+}
+
+async function getOcrWorker(language) {
+  if (!ocrWorkers.has(language)) {
+    const { directory, downloaded } = await ensureOcrLanguage(language);
     const bundledWorkerPath = path.join(path.dirname(require.resolve('tesseract.js')), 'worker-script', 'node', 'index.js');
     const workerPath = app.isPackaged ? bundledWorkerPath.replace('app.asar', 'app.asar.unpacked') : bundledWorkerPath;
     const cachePath = path.join(app.getPath('userData'), 'ocr-cache');
     await fs.mkdir(cachePath, { recursive: true });
-    ocrWorkerPromise = createWorker('eng', undefined, {
-      langPath,
+    const promise = createWorker(language, undefined, {
+      langPath: directory,
       workerPath,
       cachePath,
-      gzip: english.gzip,
-      logger: (message) => {
-        if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('ocr:progress', message);
-      }
+      gzip: true,
+      logger: sendOcrProgress
     }).catch((error) => {
-      ocrWorkerPromise = null;
+      ocrWorkers.delete(language);
       throw error;
     });
+    ocrWorkers.set(language, { promise, downloaded });
   }
-  return ocrWorkerPromise;
+  const entry = ocrWorkers.get(language);
+  return { worker: await entry.promise, downloaded: entry.downloaded };
 }
 
 function safeFontId(name) {
@@ -234,13 +303,41 @@ ipcMain.handle('recovery:clear', async () => {
   return true;
 });
 
-ipcMain.handle('ocr:recognize', async (_event, data) => {
-  const worker = await getOcrWorker();
+async function recognizeWithLanguage(data, language) {
+  const { worker, downloaded } = await getOcrWorker(language);
   const result = await worker.recognize(Buffer.from(data), {}, { text: true, blocks: true });
   const words = (result.data.blocks || []).flatMap((block) => block.paragraphs)
     .flatMap((paragraph) => paragraph.lines).flatMap((line) => line.words)
     .map((word) => ({ text: word.text, confidence: word.confidence, bbox: word.bbox }));
-  return { text: result.data.text, confidence: result.data.confidence, words };
+  return { text: result.data.text, confidence: result.data.confidence, words, language, downloaded };
+}
+
+ipcMain.handle('ocr:languages', async () => {
+  const modelDirectory = await ocrModelsDirectory();
+  const cacheDirectory = path.join(app.getPath('userData'), 'ocr-cache');
+  return Promise.all(OCR_LANGUAGES.map(async (language) => ({
+    ...language,
+    installed: language.code === 'eng'
+      || await fileExists(path.join(modelDirectory, `${language.code}.traineddata.gz`))
+      || await fileExists(path.join(cacheDirectory, `${language.code}.traineddata`))
+  })));
+});
+
+ipcMain.handle('ocr:recognize', async (_event, payload) => {
+  const data = payload?.data || payload;
+  const requestedLanguage = payload?.language || 'auto';
+  if (requestedLanguage !== 'auto') return recognizeWithLanguage(data, requestedLanguage);
+  sendOcrProgress({ status: 'detecting-language', progress: 0 });
+  const preliminary = await recognizeWithLanguage(data, 'eng');
+  const { francAll } = await import('franc-min');
+  const ranked = francAll(preliminary.text, { minLength: 20, only: Object.keys(FRANC_TO_TESSERACT) });
+  const detection = chooseDetectedLanguage(ranked, FRANC_TO_TESSERACT);
+  const detectionConfident = detection.confident;
+  const detectedIso = detection.iso;
+  const detectedLanguage = detection.language;
+  if (detectedLanguage === 'eng') return { ...preliminary, detectedLanguage, detectedIso, detectionConfident };
+  const recognized = await recognizeWithLanguage(data, detectedLanguage);
+  return { ...recognized, detectedLanguage, detectedIso, detectionConfident };
 });
 
 ipcMain.handle('app:info', () => ({ version: app.getVersion(), packaged: app.isPackaged }));
@@ -282,5 +379,5 @@ app.on('window-all-closed', () => {
 });
 
 app.on('before-quit', () => {
-  if (ocrWorkerPromise) ocrWorkerPromise.then((worker) => worker.terminate()).catch(() => {});
+  for (const entry of ocrWorkers.values()) entry.promise.then((worker) => worker.terminate()).catch(() => {});
 });

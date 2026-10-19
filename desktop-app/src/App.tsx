@@ -154,7 +154,7 @@ function App() {
   const [status, setStatus] = useState('Open a PDF to begin. Nothing is uploaded.');
   const [busy, setBusy] = useState(false);
   const [tableRows, setTableRows] = useState<string[][]>([]);
-  const [appVersion, setAppVersion] = useState('0.2.1');
+  const [appVersion, setAppVersion] = useState('0.3.1');
   const [updateState, setUpdateState] = useState<UpdateState>({ status: 'idle' });
   const [showUpdates, setShowUpdates] = useState(false);
   const [signatureDataUrl, setSignatureDataUrl] = useState<string>('');
@@ -165,8 +165,11 @@ function App() {
   const [savedSignatures, setSavedSignatures] = useState<SavedSignature[]>(() => getSavedSignatures());
   const [historyVersion, setHistoryVersion] = useState(0);
   const [recoveryInfo, setRecoveryInfo] = useState<{ name: string; savedAt: string } | null>(null);
-  const [ocrResult, setOcrResult] = useState<{ text: string; confidence: number; words: OcrWordResult[] } | null>(null);
+  const [ocrResult, setOcrResult] = useState<{ text: string; confidence: number; words: OcrWordResult[]; language: string; detectedLanguage?: string; detectionConfident?: boolean; downloaded?: boolean } | null>(null);
   const [ocrProgress, setOcrProgress] = useState(0);
+  const [ocrActivity, setOcrActivity] = useState('');
+  const [ocrLanguage, setOcrLanguage] = useState('auto');
+  const [ocrLanguages, setOcrLanguages] = useState<OcrLanguage[]>([]);
   const [formFields, setFormFields] = useState<PdfFormField[]>([]);
 
   useEffect(() => {
@@ -174,8 +177,12 @@ function App() {
     window.privateParse.appInfo().then((info) => setAppVersion(info.version));
     window.privateParse.listVaultFonts().then(setVaultFonts).catch(() => setVaultFonts([]));
     window.privateParse.getRecoveryInfo().then(setRecoveryInfo).catch(() => setRecoveryInfo(null));
+    window.privateParse.listOcrLanguages().then(setOcrLanguages).catch(() => setOcrLanguages([]));
     const stopUpdates = window.privateParse.onUpdateState(setUpdateState);
-    const stopOcr = window.privateParse.onOcrProgress((state) => setOcrProgress(Math.round(state.progress * 100)));
+    const stopOcr = window.privateParse.onOcrProgress((state) => {
+      setOcrProgress(Math.round(state.progress * 100));
+      setOcrActivity(state.status === 'downloading-language' ? 'Downloading language pack' : state.status === 'detecting-language' ? 'Detecting language' : 'Recognizing');
+    });
     return () => { stopUpdates(); stopOcr(); };
   }, []);
 
@@ -470,11 +477,14 @@ function App() {
     setStatus('Running private on-device OCR…');
     try {
       const blob = await new Promise<Blob>((resolve, reject) => canvasRef.current!.toBlob((value) => value ? resolve(value) : reject(new Error('Could not capture page')), 'image/png'));
-      const result = await window.privateParse.recognizeImage(await blob.arrayBuffer());
+      const result = await window.privateParse.recognizeImage(await blob.arrayBuffer(), ocrLanguage);
       setOcrResult(result);
-      setStatus(`OCR found ${result.words.length} words with ${result.confidence.toFixed(0)}% page confidence.`);
+      setOcrLanguages(await window.privateParse.listOcrLanguages());
+      const languageName = ocrLanguages.find((language) => language.code === result.language)?.name || result.language;
+      const detectionMessage = ocrLanguage !== 'auto' ? '' : result.detectionConfident ? `Detected ${languageName}. ` : 'Language was ambiguous, so English was used; select a language manually if needed. ';
+      setStatus(`${detectionMessage}OCR found ${result.words.length} words with ${result.confidence.toFixed(0)}% page confidence.${result.downloaded ? ' The language pack is now stored offline.' : ''}`);
     } catch (error) { setStatus(`OCR failed locally: ${(error as Error).message}`); }
-    finally { setBusy(false); }
+    finally { setBusy(false); setOcrActivity(''); }
   };
 
   const applyOcrLayer = async () => {
@@ -665,7 +675,14 @@ function App() {
           </section>
         )}
         {tool === 'ocr' && (
-          <section><p className="eyebrow">Offline OCR</p><h2>Make scans searchable</h2><p className="muted">English recognition runs entirely on this computer. Review the recognized text before adding an invisible search layer.</p><button className="button primary full" disabled={busy} onClick={runOcr}><ScanText size={17} /> {busy ? `Recognizing ${ocrProgress}%` : 'Recognize this page'}</button>{ocrResult && <><div className="ocr-score"><strong>{ocrResult.confidence.toFixed(0)}%</strong><span>page confidence · {ocrResult.words.length} words</span></div><label className="field"><span>Recognized text</span><textarea rows={12} value={ocrResult.text} readOnly /></label><button className="button secondary full" onClick={applyOcrLayer}>Add searchable text layer</button></>}<p className="privacy-note"><LockKeyhole size={15} /> OCR data and language files stay on-device. This does not alter the visible scan.</p></section>
+          <section>
+            <p className="eyebrow">Offline OCR</p><h2>Make scans searchable</h2>
+            <p className="muted">Choose a language or let PrivateParse detect it. Missing recognition packs are downloaded once, saved privately, and then work offline.</p>
+            <label className="field"><span>Document language</span><select value={ocrLanguage} onChange={(event) => { setOcrLanguage(event.target.value); setOcrResult(null); }}><option value="auto">Detect automatically</option>{ocrLanguages.map((language) => <option key={language.code} value={language.code}>{language.name}{language.installed ? ' · ready offline' : ' · downloads on use'}</option>)}</select></label>
+            <button className="button primary full" disabled={busy} onClick={runOcr}><ScanText size={17} /> {busy ? `${ocrActivity || 'Recognizing'} ${ocrProgress}%` : 'Detect and recognize page'}</button>
+            {ocrResult && <><div className="language-result"><span>Language used</span><strong>{ocrLanguages.find((language) => language.code === ocrResult.language)?.name || ocrResult.language}</strong><small>{ocrLanguage === 'auto' && !ocrResult.detectionConfident ? 'Detection was ambiguous · choose manually if needed' : ocrResult.downloaded ? 'Pack downloaded and ready offline' : 'Local pack used'}</small></div><div className="ocr-score"><strong>{ocrResult.confidence.toFixed(0)}%</strong><span>page confidence · {ocrResult.words.length} words</span></div><label className="field"><span>Recognized text</span><textarea rows={12} value={ocrResult.text} readOnly /></label><button className="button secondary full" onClick={applyOcrLayer}>Add searchable text layer</button></>}
+            <p className="privacy-note"><LockKeyhole size={15} /> PDF pages are never uploaded. Auto mode may contact jsDelivr only to retrieve a missing open-source language model.</p>
+          </section>
         )}
         {tool === 'forms' && (
           <section><p className="eyebrow">Interactive forms</p><h2>Fill existing PDF fields</h2><p className="muted">Only real AcroForm fields are edited. Flattened scans are routed through OCR instead.</p>{!formFields.length ? <div className="empty-panel">No interactive form fields were found in this PDF.</div> : <div className="form-list">{formFields.map((field) => <label className="field" key={field.name}><span>{field.name}</span>{field.type === 'checkbox' ? <select value={field.value} onChange={(event) => updateFormField(field, event.target.value)}><option value="false">Unchecked</option><option value="true">Checked</option></select> : field.options ? <select value={field.value} onChange={(event) => updateFormField(field, event.target.value)}>{field.options.map((option) => <option key={option}>{option}</option>)}</select> : <input disabled={field.type === 'unsupported'} defaultValue={field.value} onBlur={(event) => event.target.value !== field.value && updateFormField(field, event.target.value)} />}</label>)}</div>}<div className="safety-card"><ShieldCheck size={17} /><span><strong>Honest signing</strong>Visual signatures are clearly labeled. Certificate-based digital signing is not simulated.</span></div></section>

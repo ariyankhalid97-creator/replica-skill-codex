@@ -31,6 +31,9 @@ launch scope is complete. It was built clean-room from `replica/recon.md`,
   changing the visible scan.
 - Existing AcroForm text, checkbox, dropdown, and radio fields can be filled.
 - Multi-file first-page table extraction into one editable CSV review.
+- OCR language controls with automatic text-language detection, manual override,
+  installed-pack indicators, bounded HTTPS downloads from pinned Tesseract.js
+  packages, gzip validation, and app-private offline reuse.
 
 ### Deliberately incomplete
 
@@ -42,8 +45,8 @@ launch scope is complete. It was built clean-room from `replica/recon.md`,
 
 ### Verification record
 
-- `npm test`: 6 tests passed, including unsafe font substitution refusal and
-  non-rasterizing page operations.
+- `npm test`: 8 tests passed, including unsafe font substitution refusal,
+  non-rasterizing page operations, and ambiguous language-detection fallback.
 - `npm run build`: passed.
 - Design token contrast checker: passed 12 pairs with zero failures.
 - Production dependency audit: zero known vulnerabilities.

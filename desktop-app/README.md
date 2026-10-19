@@ -20,7 +20,7 @@ For the update-capable Windows installer:
 npm run dist
 ```
 
-Send the resulting `release/PrivateParse-Setup-0.3.0-x64.exe` to a tester. It is
+Send the resulting `release/PrivateParse-Setup-0.3.1-x64.exe` to a tester. It is
 unsigned during development, so Windows SmartScreen may show an
 unknown-publisher warning. Production releases should be code signed.
 
@@ -40,6 +40,10 @@ and use **Save copy**.
 - Undo/redo plus an app-private crash-recovery copy for unsaved work.
 - Bundled English OCR with confidence review and searchable invisible layers;
   no cloud OCR endpoint is used.
+- Automatic language detection across 18 supported OCR languages, with manual
+  override for short pages. Missing language packs are downloaded from the
+  pinned Tesseract.js package on jsDelivr, validated, stored in app-private
+  storage, and reused offline. PDF page pixels are never sent to the CDN.
 - Fill existing AcroForm text, checkbox, dropdown, and radio fields.
 - Object-level edits with font metadata, document-font capture when PDF.js can
   safely expose the embedded bytes, one-time local font selection, and a
@@ -55,8 +59,9 @@ and use **Save copy**.
 
 ## Current limits
 
-- OCR supports bundled English print recognition. Additional languages,
-  handwriting, layout-aware scan editing, and automatic deskew remain future work.
+- OCR supports English offline from installation and 17 downloadable print
+  languages. Handwriting, layout-aware scan editing, and automatic deskew remain
+  future work.
 - Table extraction is intended for simple rows and columns. Merged cells,
   multi-row headers, borderless tables, and multi-page stitching need the next
   extraction engine.

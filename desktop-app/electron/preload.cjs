@@ -14,7 +14,8 @@ contextBridge.exposeInMainWorld('privateParse', {
   getRecoveryInfo: () => ipcRenderer.invoke('recovery:info'),
   loadRecovery: () => ipcRenderer.invoke('recovery:load'),
   clearRecovery: () => ipcRenderer.invoke('recovery:clear'),
-  recognizeImage: (data) => ipcRenderer.invoke('ocr:recognize', data),
+  listOcrLanguages: () => ipcRenderer.invoke('ocr:languages'),
+  recognizeImage: (data, language = 'auto') => ipcRenderer.invoke('ocr:recognize', { data, language }),
   onOcrProgress: (callback) => {
     const listener = (_event, state) => callback(state);
     ipcRenderer.on('ocr:progress', listener);

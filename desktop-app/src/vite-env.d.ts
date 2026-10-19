@@ -22,7 +22,8 @@ interface Window {
     getRecoveryInfo(): Promise<{ name: string; savedAt: string } | null>;
     loadRecovery(): Promise<(PickedBinaryFile & { savedAt: string }) | null>;
     clearRecovery(): Promise<boolean>;
-    recognizeImage(data: ArrayBuffer): Promise<{ text: string; confidence: number; words: OcrWordResult[] }>;
+    listOcrLanguages(): Promise<OcrLanguage[]>;
+    recognizeImage(data: ArrayBuffer, language?: string): Promise<{ text: string; confidence: number; words: OcrWordResult[]; language: string; detectedLanguage?: string; detectedIso?: string; detectionConfident?: boolean; downloaded?: boolean }>;
     onOcrProgress(callback: (state: { status: string; progress: number }) => void): () => void;
     appInfo(): Promise<{ version: string; packaged: boolean }>;
     checkForUpdates(): Promise<UpdateState>;
@@ -36,6 +37,12 @@ interface OcrWordResult {
   text: string;
   confidence: number;
   bbox: { x0: number; y0: number; x1: number; y1: number };
+}
+
+interface OcrLanguage {
+  code: string;
+  name: string;
+  installed: boolean;
 }
 
 interface UpdateState {

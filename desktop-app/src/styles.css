@@ -138,6 +138,10 @@ nav { display: flex; flex-direction: column; gap: 5px; }
 .safety-card strong, .change-badge strong { color: var(--color-text); }
 .ocr-score { display: flex; align-items: baseline; gap: 8px; margin: 14px 0 4px; color: var(--color-text-muted); font-size: 11px; }
 .ocr-score strong { color: var(--color-accent); font-size: 27px; }
+.language-result { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; margin-top: 13px; padding: 10px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface-raised); }
+.language-result span { color: var(--color-text-muted); font-size: 10px; text-transform: uppercase; letter-spacing: .04em; }
+.language-result strong { font-size: 12px; }
+.language-result small { grid-column: 1 / -1; color: var(--color-success); font-size: 10px; }
 .form-list { display: grid; gap: 4px; }
 .recovery-card { display: flex; align-items: center; gap: 10px; margin-top: 16px; padding: 11px 15px; border: 1px solid #b8ded4; border-radius: var(--radius-md); color: var(--color-accent); background: #eff9f6; cursor: pointer; }
 .recovery-card span { display: flex; flex-direction: column; align-items: flex-start; }

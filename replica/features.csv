@@ -48,6 +48,7 @@ No document upload,privacy,must,no,partial,Desktop app has no upload code; autom
 Local-only diagnostics,privacy,must,no,no,Crash sharing explicit opt-in only
 Delete cache and extraction history,privacy,must,yes,partial,Successful Save copy clears the crash-recovery file; full privacy settings panel remains
 OCR Chinese Japanese Korean Devanagari,language,should,yes,no,Downloadable packs after Latin MVP
+Automatic OCR language detection and on-demand packs,language,should,no,partial,Desktop detects among 18 supported languages from a private preliminary pass and downloads missing pinned packs to app-private storage; manual override handles short ambiguous pages
 Handwriting OCR,language,could,yes,no,Not promised by text OCR path
 Cloud collaboration,collaboration,skip,yes,skip,Conflicts with local-only wedge
 Remote e-sign requests,collaboration,skip,yes,skip,Requires servers identity workflow and ongoing cost
