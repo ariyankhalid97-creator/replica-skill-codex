@@ -51,8 +51,14 @@ async function recoveryDirectory() {
 async function getOcrWorker() {
   if (!ocrWorkerPromise) {
     const langPath = app.isPackaged ? english.langPath.replace('app.asar', 'app.asar.unpacked') : english.langPath;
+    const bundledWorkerPath = path.join(path.dirname(require.resolve('tesseract.js')), 'worker-script', 'node', 'index.js');
+    const workerPath = app.isPackaged ? bundledWorkerPath.replace('app.asar', 'app.asar.unpacked') : bundledWorkerPath;
+    const cachePath = path.join(app.getPath('userData'), 'ocr-cache');
+    await fs.mkdir(cachePath, { recursive: true });
     ocrWorkerPromise = createWorker('eng', undefined, {
       langPath,
+      workerPath,
+      cachePath,
       gzip: english.gzip,
       logger: (message) => {
         if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('ocr:progress', message);
